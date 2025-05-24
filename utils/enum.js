@@ -1,0 +1,11 @@
+export const BUYER = "buyer";
+export const RENTER = "renter";
+export const SUB_ADMIN = "sub-admin";
+export const SUPER_ADMIN = "super-admin";
+export const BUY = 'buy';
+export const RENT = 'rent';
+export const INDIVIDUAL = 'individual';
+export const BUSINESS = 'business';
+export const PENDING = 'pending';
+export const APPROVED = 'approved';
+export const REJECTED = 'rejected';
