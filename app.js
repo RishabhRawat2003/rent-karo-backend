@@ -8,6 +8,7 @@ import adminRouter from './routes/admin.routes.js'
 import otpRouter from './routes/otp.routes.js'
 import kycRouter from './routes/kyc.routes.js'
 import organisationRouter from './routes/organisation.routes.js'
+import productRouter from './routes/product.routes.js'
 
 const app = express()
 
@@ -47,5 +48,6 @@ app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/otp', otpRouter)
 app.use('/api/v1/kyc', kycRouter)
 app.use('/api/v1/organisation', organisationRouter)
+app.use('/api/v1/product', productRouter)
 
 export { app }

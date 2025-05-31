@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const specificationSchema = new Schema({
+const specificationSchema = new mongoose.Schema({
     title: { type: String, required: true },
     data: [
         {
@@ -62,15 +62,14 @@ const productsSchema = new mongoose.Schema(
             ],
             default: [],
         },
-        specificationSchema: {
+        specifications: {
             type: [specificationSchema],
             default: [],
         },
-        // category: {
-        //     type: mongoose.Schema.Types.ObjectId,
-        //     ref: "Category",
-        //     required: true,
-        // },
+        category: {
+            type: String,
+            required: true,
+        },
         organisationId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Organisation",
@@ -88,4 +87,4 @@ const productsSchema = new mongoose.Schema(
 )
 
 
-export const Products = mongoose.model("Products", productsSchema);
+export const Product = mongoose.model("Product", productsSchema);

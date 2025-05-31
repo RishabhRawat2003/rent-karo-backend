@@ -21,6 +21,14 @@ const organisationSchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
+        is_verified: {
+            type: Boolean,
+            default: false,
+        },
+        blockedByAdmin: {
+            type: Boolean,
+            default: false,
+        },
     }, {
     timestamps: true,
     versionKey: false
