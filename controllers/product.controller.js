@@ -140,14 +140,14 @@ export const deleteProductById = async (req, res) => {
 export const updateProductById = async (req, res) => {
     try {
         const { id } = req.params
-        const { title, subTitle, description, stocks, wanted_to_sell, realSellingPrice, discountOnSellingPrice, sellingPrice, rentalPricing, specifications, category, organisationId , existingImages} = req.body
+        const { title, subTitle, description, stocks, wanted_to_sell, realSellingPrice, discountOnSellingPrice, sellingPrice, rentalPricing, specifications, category, organisationId, existingImages } = req.body
         const images = req.files
 
         if (!id) {
             return res.status(400).json({ message: "Product ID is required" })
         }
 
-        if(!title || !subTitle || !description || !stocks || !wanted_to_sell || !realSellingPrice || !discountOnSellingPrice || !sellingPrice || !category || !organisationId || !rentalPricing || !specifications || !existingImages) {
+        if (!title || !subTitle || !description || !stocks || !wanted_to_sell || !realSellingPrice || !discountOnSellingPrice || !sellingPrice || !category || !organisationId || !rentalPricing || !specifications || !existingImages) {
             return res.status(400).json({ message: "All fields are required" })
         }
 
@@ -161,12 +161,13 @@ export const updateProductById = async (req, res) => {
             specificationsArr = JSON.parse(specifications)
         }
 
+        let presentImages = JSON.parse(existingImages)
         let imagesArr = []
         if (images && images.length > 0) {
             const uploadedImages = await Promise.all(
                 images.map(item => uploadOnCloudinary(item.path))
             )
-            imagesArr = [...existingImages, ...uploadedImages.map(img => img.secure_url)]
+            imagesArr = [...presentImages, ...uploadedImages.map(img => img.secure_url)]
         }
 
         let update = {}
@@ -190,9 +191,43 @@ export const updateProductById = async (req, res) => {
             return res.status(404).json({ message: "Product not found" })
         }
 
-        return res.status(200).json({ message: "Product updated successfully", product })
+        return res.status(200).json({ message: "Product updated successfully" })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: "Internal server error" })
     }
 }
+
+export const getProductsByOrgId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { page = 1, limit = 10 } = req.body; // default page = 1, limit = 10
+        const skip = (page - 1) * limit;
+
+        if (!id) {
+            return res.status(400).json({ message: "Organisation ID is required" });
+        }
+
+        const [products, total] = await Promise.all([
+            Product.find({ organisationId: id })
+                .populate("organisationId")
+                .lean()
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Product.countDocuments({ organisationId: id })
+        ]);
+
+        return res.status(200).json({
+            message: "Products fetched successfully",
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalProducts: total,
+            products
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

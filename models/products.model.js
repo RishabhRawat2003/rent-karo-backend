@@ -42,7 +42,6 @@ const productsSchema = new mongoose.Schema(
         },
         realSellingPrice: {
             type: Number,
-            required: true,
         },
         discountOnSellingPrice: {
             type: Number,

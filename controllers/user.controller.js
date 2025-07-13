@@ -240,11 +240,10 @@ export const googleLogin = async (req, res) => {
         const payload = ticket.getPayload();
         const {
             sub: googleId,
-            email,
         } = payload;
 
         let user = await User.findOne({
-            $or: [{ googleId }, { email }]
+            googleId
         });
 
         if (!user) {
