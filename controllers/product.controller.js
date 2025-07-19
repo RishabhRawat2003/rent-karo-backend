@@ -77,23 +77,32 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const {
-            page = 1,
-            limit = 20
-        } = req.body
+        const { page = 1, limit = 20 } = req.body;
+        const skip = (page - 1) * limit;
 
-        const products = await Product.find({}).limit(limit).skip((page - 1) * limit).populate("organisationId").lean().exec()
+        const [products, total] = await Promise.all([
+            Product.find({})
+                .populate("organisationId")
+                .lean()
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Product.countDocuments({})
+        ]);
 
-        if (!products) {
-            return res.status(400).json({ message: "Error fetching products" })
-        }
-
-        return res.status(200).json({ message: "Products fetched successfully", products })
+        return res.status(200).json({
+            message: "Products fetched successfully",
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalProducts: total,
+            products
+        });
     } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal server error" })
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-}
+};
+
 
 export const getProductById = async (req, res) => {
     try {

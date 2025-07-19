@@ -17,6 +17,7 @@ const allowedOrigins = [
     "http://localhost:5174",
     "http://localhost:5175",
     "http://localhost:3000",
+    "https://rent-karo-frontend.vercel.app"
 ];
 
 app.use(
@@ -40,6 +41,12 @@ app.use(cookieParser())
 app.use(morgan("dev"))
 app.use(compression())
 
+app.use("/", (req, res) => {
+    res.status(200).json({
+        message: "Welcome to Rent Karo Backend",
+        success: true
+    })
+});
 
 
 
