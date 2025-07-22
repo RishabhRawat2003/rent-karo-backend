@@ -41,20 +41,18 @@ app.use(cookieParser())
 app.use(morgan("dev"))
 app.use(compression())
 
-app.use("/", (req, res) => {
-    res.status(200).json({
-        message: "Welcome to Rent Karo Backend",
-        success: true
-    })
-});
-
-
-
 app.use('/api/v1/user', userRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/otp', otpRouter)
 app.use('/api/v1/kyc', kycRouter)
 app.use('/api/v1/organisation', organisationRouter)
 app.use('/api/v1/product', productRouter)
+
+app.use("/", (req, res) => {
+    res.status(200).json({
+        message: "Welcome to Rent Karo Backend",
+        success: true
+    })
+});
 
 export { app }

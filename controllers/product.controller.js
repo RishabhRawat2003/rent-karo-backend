@@ -77,17 +77,23 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const { page = 1, limit = 20 } = req.body;
+        const { page = 1, limit = 20, wanted_to_sell } = req.body;
         const skip = (page - 1) * limit;
 
+        // Build the filter condition
+        const filter = {};
+        if (wanted_to_sell === true || wanted_to_sell === false) {
+            filter.wanted_to_sell = wanted_to_sell;
+        }
+
         const [products, total] = await Promise.all([
-            Product.find({})
+            Product.find(filter)
                 .populate("organisationId")
                 .lean()
                 .skip(skip)
                 .limit(limit)
                 .exec(),
-            Product.countDocuments({})
+            Product.countDocuments(filter)
         ]);
 
         return res.status(200).json({
@@ -102,6 +108,7 @@ export const getAllProducts = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 
 export const getProductById = async (req, res) => {
