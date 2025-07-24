@@ -69,6 +69,10 @@ const productsSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        sub_category: {
+            type: String,
+            required: true,
+        },
         organisationId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Organisation",

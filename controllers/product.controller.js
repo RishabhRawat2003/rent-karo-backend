@@ -16,12 +16,13 @@ export const createProduct = async (req, res) => {
             rentalPricing,
             specifications,
             category,
+            sub_category,
             organisationId
         } = req.body
 
         const images = req.files
 
-        if (!title || !subTitle || !description || !stocks || !wanted_to_sell || !realSellingPrice || !discountOnSellingPrice || !sellingPrice || !category || !organisationId || !rentalPricing || !specifications) {
+        if (!title || !subTitle || !description || !stocks || !wanted_to_sell || !realSellingPrice || !discountOnSellingPrice || !sellingPrice || !category || !sub_category || !organisationId || !rentalPricing || !specifications) {
             return res.status(400).json({ message: "All fields are required" })
         }
 
@@ -59,6 +60,7 @@ export const createProduct = async (req, res) => {
             rentalPricing: rentalPricingObj,
             specifications: specificationsArr,
             category,
+            sub_category,
             organisationId,
             images: imagesArr
         })
@@ -109,8 +111,6 @@ export const getAllProducts = async (req, res) => {
     }
 };
 
-
-
 export const getProductById = async (req, res) => {
     try {
         const { id } = req.params
@@ -156,14 +156,14 @@ export const deleteProductById = async (req, res) => {
 export const updateProductById = async (req, res) => {
     try {
         const { id } = req.params
-        const { title, subTitle, description, stocks, wanted_to_sell, realSellingPrice, discountOnSellingPrice, sellingPrice, rentalPricing, specifications, category, organisationId, existingImages } = req.body
+        const { title, subTitle, description, stocks, wanted_to_sell, realSellingPrice, discountOnSellingPrice, sub_category, sellingPrice, rentalPricing, specifications, category, organisationId, existingImages } = req.body
         const images = req.files
 
         if (!id) {
             return res.status(400).json({ message: "Product ID is required" })
         }
 
-        if (!title || !subTitle || !description || !stocks || !wanted_to_sell || !realSellingPrice || !discountOnSellingPrice || !sellingPrice || !category || !organisationId || !rentalPricing || !specifications || !existingImages) {
+        if (!title || !subTitle || !description || !stocks || !wanted_to_sell || !sub_category || !realSellingPrice || !discountOnSellingPrice || !sellingPrice || !category || !organisationId || !rentalPricing || !specifications || !existingImages) {
             return res.status(400).json({ message: "All fields are required" })
         }
 
@@ -196,10 +196,15 @@ export const updateProductById = async (req, res) => {
         if (discountOnSellingPrice) update.discountOnSellingPrice = discountOnSellingPrice
         if (sellingPrice) update.sellingPrice = sellingPrice
         if (category) update.category = category
+        if (sub_category) update.sub_category = sub_category
         if (rentalPricingObj) update.rentalPricing = rentalPricingObj
         if (specificationsArr) update.specifications = specificationsArr
         if (organisationId) update.organisationId = organisationId
-        if (imagesArr) update.images = imagesArr
+        if (images.length > 0) {
+            if (imagesArr) update.images = imagesArr
+        } else {
+            update.images = presentImages
+        }
 
         const product = await Product.findByIdAndUpdate(id, update, { new: true })
 
@@ -247,3 +252,49 @@ export const getProductsByOrgId = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getProductsByCategoryWithFallback = async (req, res) => {
+    try {
+        const { category } = req.body;
+
+        if (!category) {
+            return res.status(400).json({ message: "Category is required" });
+        }
+
+        // First, find products with the given category (max 4)
+        const categoryProducts = await Product.find({ category })
+            .populate("organisationId")
+            .lean()
+            .limit(4);
+
+        let products = [...categoryProducts];
+
+        if (categoryProducts.length < 4) {
+            const remaining = 4 - categoryProducts.length;
+
+            const additionalProducts = await Product.aggregate([
+                { $match: { category: { $ne: category } } },
+                { $sample: { size: remaining } }
+            ]);
+
+            // Optionally populate manually if using aggregate (if needed)
+            const populatedAdditional = await Product.populate(additionalProducts, {
+                path: "organisationId"
+            });
+
+            products = [...categoryProducts, ...populatedAdditional];
+        }
+
+        return res.status(200).json({
+            message: "Products fetched successfully",
+            category: category,
+            totalProducts: products.length,
+            products
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+

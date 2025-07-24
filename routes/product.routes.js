@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createProduct, deleteProductById, getAllProducts, getProductById, getProductsByOrgId, updateProductById } from "../controllers/product.controller.js";
+import { createProduct, deleteProductById, getAllProducts, getProductById, getProductsByCategoryWithFallback, getProductsByOrgId, updateProductById } from "../controllers/product.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { authenticateUser } from "../middlewares/authentication.middleware.js";
 
@@ -11,6 +11,7 @@ router.post("/get-products-by-organisation/:id", authenticateUser, getProductsBy
 router.get("/get/:id", getProductById)
 router.delete("/remove/:id", deleteProductById)
 router.post("/update/:id",authenticateUser, upload.array("images"), updateProductById)
+router.post("/product-category", getProductsByCategoryWithFallback)
 
 
 export default router;
