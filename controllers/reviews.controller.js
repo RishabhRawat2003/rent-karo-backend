@@ -2,7 +2,7 @@ import { Review } from "../models/reviews.model.js";
 
 export const createReview = async (req, res) => {
     try {
-        const { product, user, title, rating, comment } = req.body;
+        const { product, user, rating, comment } = req.body;
 
         if (!product || !user || !rating || rating < 1 || rating > 5 || !comment) {
             return res.status(400).json({ message: "All fields are required" });
@@ -11,7 +11,6 @@ export const createReview = async (req, res) => {
         const createReview = await Review.create({
             product,
             user,
-            title,
             rating,
             comment
         });
@@ -36,12 +35,8 @@ export const getReviews = async (req, res) => {
         }
 
         const reviews = await Review.find({ product: productId })
-            .populate("user", "name email profilePicture")
+            .populate("user", "fullName email profilePicture")
             .sort({ createdAt: -1 });
-
-        if (!reviews || reviews.length === 0) {
-            return res.status(404).json({ message: "No reviews found for this product" });
-        }
 
         return res.status(200).json({ reviews });
     } catch (error) {

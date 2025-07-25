@@ -79,13 +79,21 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const { page = 1, limit = 20, wanted_to_sell } = req.body;
+        const { page = 1, limit = 20, wanted_to_sell, category , searchedName} = req.body;
         const skip = (page - 1) * limit;
 
         // Build the filter condition
         const filter = {};
         if (wanted_to_sell === true || wanted_to_sell === false) {
             filter.wanted_to_sell = wanted_to_sell;
+        }
+
+        if (category) {
+            filter.category = category;
+        }
+
+        if (searchedName) {
+            filter.title = { $regex: searchedName, $options: 'i' };
         }
 
         const [products, total] = await Promise.all([
