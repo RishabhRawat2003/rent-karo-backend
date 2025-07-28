@@ -10,6 +10,7 @@ import kycRouter from './routes/kyc.routes.js'
 import organisationRouter from './routes/organisation.routes.js'
 import productRouter from './routes/product.routes.js'
 import reviewRouter from './routes/review.routes.js'
+import orderRouter from './routes/order.routes.js'
 
 const app = express()
 
@@ -49,6 +50,7 @@ app.use('/api/v1/kyc', kycRouter)
 app.use('/api/v1/organisation', organisationRouter)
 app.use('/api/v1/product', productRouter)
 app.use('/api/v1/review', reviewRouter)
+app.use('/api/v1/order', orderRouter)
 
 app.use("/", (req, res) => {
     res.status(200).json({
