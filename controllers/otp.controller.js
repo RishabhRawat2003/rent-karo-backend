@@ -1,4 +1,5 @@
 import { Otp } from "../models/otp.model.js";
+import { User } from "../models/user.model.js";
 import { sendEmailVerificationMail } from "../services/email_services.js";
 
 
@@ -13,6 +14,12 @@ export const sendOtp = async (req, res) => {
 
         if (!email) {
             return res.status(400).json({ message: "Email is required" });
+        }
+
+        const existingEmail = await User.findOne({ email });
+
+        if (existingEmail) {
+            return res.status(400).json({ message: "Email already exists" });
         }
 
         const otp = generateOtp();

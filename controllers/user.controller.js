@@ -47,7 +47,8 @@ export const signup = async (req, res) => {
             password,
             mobileNo,
             email,
-            username
+            username,
+            emailVerified: true
         })
 
         if (!user) {

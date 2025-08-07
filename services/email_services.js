@@ -12,15 +12,67 @@ export async function sendEmailVerificationMail(to, otp) {
         }
     });
 
-    const text = `Hi there,\n\nYour OTP code for email verification is: ${otp}\n\nPlease enter this code to complete your verification.\n\nIf you did not request this, please ignore this email.\n\nThanks,\nTeam Rent Karo`;
+    // HTML styled email (change YEAR dynamically if you wish)
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <body style="margin:0;padding:0;background:#f6fbff;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
+      <table width="100%" bgcolor="#f6fbff" cellpadding="0" cellspacing="0" style="padding: 40px 0;">
+        <tr>
+          <td align="center">
+            <table width="420" bgcolor="#ffffff" cellpadding="0" cellspacing="0" style="border-radius:14px;overflow:hidden;box-shadow:0 2px 16px rgba(20,71,230,0.10);">
+              <tr>
+                <td align="center" bgcolor="#1447e6" style="padding: 26px;">
+                  <span style="font-size:30px;font-weight:700;letter-spacing:1px;color:#fff;">Rent Karo</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 32px 28px 24px 28px;">
+                  <h2 style="margin:0 0 14px 0;color:#1447e6;font-size:22px;">Email Verification</h2>
+                  <p style="color:#222;font-size:16px;margin:0 0 18px 0;">
+                    <strong>Hi there,</strong>
+                  </p>
+                  <p style="color:#444;font-size:15px;margin:0 0 18px 0;">
+                    Thank you for registering with <b>Rent Karo</b>! Please use the following OTP to verify your email address:
+                  </p>
+                  <div style="text-align:center;margin:28px 0;">
+                    <span style="display:inline-block;padding:18px 0;width:180px;background:#e7f1ff;color:#1447e6;
+                      font-size:30px;font-weight:600;letter-spacing:16px;border-radius:10px;box-shadow:0 3px 10px #e7f1ff;">
+                      ${otp}
+                    </span>
+                  </div>
+                  <p style="color:#666;font-size:14px;">
+                    Enter this code on the verification page to complete your registration.
+                  </p>
+                  <p style="font-size:13px;color:#999;margin-top:24px;">
+                    If you did not initiate this request, you can safely ignore this email.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" bgcolor="#f6fbff" style="padding:24px 0 16px 0;">
+                  <span style="font-size:12px;color:#adb8c7;">
+                    &copy; ${new Date().getFullYear()} Rent Karo. All rights reserved.
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+    `;
 
     await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: `"Rent Karo" <${process.env.EMAIL_USER}>`,
         to,
         subject: 'OTP Verification - Email Confirmation',
-        text
+        text: `Hi there,\n\nYour OTP code for email verification is: ${otp}\n\nPlease enter this code to complete your verification.\n\nIf you did not request this, please ignore this email.\n\nThanks,\nTeam Rent Karo`,
+        html
     });
 }
+
 
 
 export async function sendOrderConfirmationEmail(orderDetails) {
