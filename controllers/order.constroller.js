@@ -92,3 +92,86 @@ export const verifyStatus = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" })
     }
 }
+
+export const getAllOrders = async (req, res) => {
+    try {
+        const { page = 1, limit = 20 } = req.body;
+        const skip = (page - 1) * limit;
+
+        const [orders, total] = await Promise.all([
+            Order.find()
+                .populate("user_id order_items.product_id")
+                .lean()
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Order.countDocuments()
+        ]);
+
+        return res.status(200).json({
+            message: "All Orders fetched Successfully",
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalOrders: total,
+            orders
+        });
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
+
+export const getOrdersByUserId = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, user_id } = req.body;
+        const skip = (page - 1) * limit;
+
+        if(!user_id){
+            return res.status(400).json({ message: "User ID is required" })
+        }
+
+        const [orders, total] = await Promise.all([
+            Order.find({ user_id })
+                .populate("user_id order_items.product_id")
+                .lean()
+                .skip(skip)
+                .limit(limit)
+                .exec(),
+            Order.countDocuments({ user_id })
+        ]);
+
+        return res.status(200).json({
+            message: "Orders fetched successfully",
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalOrders: total,
+            orders
+        });
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
+
+export const getOrderById = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        if (!id) {
+            return res.status(400).json({ message: "Order ID is required" })
+        }
+
+        const order = await Order.findById(id).populate("user_id order_items.product_id").lean().exec()
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" })
+        }
+
+        return res.status(200).json({ message: "Order fetched successfully", order })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
